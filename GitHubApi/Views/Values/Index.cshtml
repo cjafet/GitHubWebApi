@@ -1,0 +1,61 @@
+﻿@model IEnumerable<GitHubApi.Models.Repo>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @*<a asp-action="Create">Create New</a>*@
+    <br/>
+</p>
+<form asp-controller="Values" asp-action="Index">
+    <p>
+        Search: <input type="text" name="query">
+        <input type="submit" value="Filter" />
+    </p>
+</form>
+<table class="table">
+    <thead>
+        <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                @*<th>
+                    @Html.DisplayNameFor(model => model.Description)
+                </th>*@
+                <th>
+                    @Html.DisplayNameFor(model => model.Forks)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Stars)
+                </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            @*<td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>*@
+            <td>
+                @Html.DisplayFor(modelItem => item.Forks)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Stars)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", "values", new { id = item.Id }, null) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
