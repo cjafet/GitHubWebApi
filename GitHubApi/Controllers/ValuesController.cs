@@ -21,6 +21,24 @@ namespace GitHubApi.Controllers
         public ActionResult Index(string query = "Angular")
         {
             var repositories = ProcessRepositories(query).Result;
+            using (var context = new Context())
+            {
+                foreach (Repo element in repositories.Item)
+                {
+                    context.Repos.Add(new Repo()
+                    {
+                        Name = element.Name,
+                        Description = element.Description,
+                        Forks = element.Forks,
+                        Stars = element.Stars
+                    });
+                    context.SaveChanges();
+                }
+
+                var Repos = context.Repos.ToList();
+            }
+
+
             return View(repositories.Item);
         }
 
