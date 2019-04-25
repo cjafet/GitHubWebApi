@@ -22,7 +22,7 @@ namespace GitHubApi.Models
         public string Name { get; set; }
 
         [DataMember(Name = "description")]
-        [MaxLength(40)]
+        [MaxLength(500)]
         public string Description { get; set; }
 
         [DataMember(Name = "forks")]
@@ -30,5 +30,8 @@ namespace GitHubApi.Models
 
         [DataMember(Name = "stargazers_count")]
         public int Stars { get; set; }
+
+        [DataMember(Name = "html_url")]
+        public string Url { get; set; }
     }
 }

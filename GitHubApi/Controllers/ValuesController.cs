@@ -14,6 +14,7 @@ namespace GitHubApi.Controllers
     public class ValuesController : Controller
     {
         private static readonly HttpClient client = new HttpClient();
+        public bool HasWord;
 
 
         // GET api/values
@@ -21,21 +22,41 @@ namespace GitHubApi.Controllers
         public ActionResult Index(string query = "Angular")
         {
             var repositories = ProcessRepositories(query).Result;
+
+
             using (var context = new Context())
             {
-                foreach (Repo element in repositories.Item)
+                var Keywords = context.Keywords.ToList();
+
+                foreach (var el in Keywords)
                 {
-                    context.Repos.Add(new Repo()
+                    if (el.Name == query)
                     {
-                        Name = element.Name,
-                        Description = element.Description,
-                        Forks = element.Forks,
-                        Stars = element.Stars
-                    });
-                    context.SaveChanges();
+                        HasWord = true;
+                    }
+
                 }
 
-                var Repos = context.Repos.ToList();
+                if (!HasWord)
+                {
+                    context.Keywords.Add(new Keyword { Name = query });
+                    context.SaveChanges();
+                    foreach (Repo element in repositories.Item)
+                    {
+                        context.Repos.Add(new Repo()
+                        {
+                            Name = element.Name,
+                            Description = element.Description,
+                            Forks = element.Forks,
+                            Stars = element.Stars,
+                            Id = element.Id,
+                            Url = element.Url
+                        });
+                        context.SaveChanges();
+                    }
+
+                }
+          
             }
 
 
@@ -109,9 +130,15 @@ namespace GitHubApi.Controllers
 
         }
 
+        [HttpGet("search")]
         public ActionResult Search(string query)
         {
-            return View(query);
+            using (var context = new Context())
+            {
+                var Repos = context.Repos.ToList();
+                return View(Repos);
+            }
+
         }
 
     }
