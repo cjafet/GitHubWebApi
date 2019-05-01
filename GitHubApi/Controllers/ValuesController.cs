@@ -9,12 +9,17 @@ namespace GitHubApi.Controllers
 
         // private RepoRepository _repoRepository = new RepoRepository();
         public bool HasWord;
-        private Context _context = null;
+        //private Context _context = null;
+        private readonly Context _context;
+
+        private bool _disposed = false;
 
         // Making sure we are creating just one instance of the context class
-        public ValuesController()
+        public ValuesController(Context context)
         {
-            _context = new Context();
+            //_context = new Context();
+            _context = context;
+
         }
 
 
@@ -83,7 +88,7 @@ namespace GitHubApi.Controllers
 
         }
 
-        private bool _disposed = false;
+        
 
         protected override void Dispose(bool disposing)
         {
