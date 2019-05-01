@@ -34,7 +34,13 @@ namespace GitHubApi
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                name: "default",
+                template: "api/{controller}/{action}/{id?}",
+                defaults: new { controller = "Values", action = "Index" });
+            });
         }
     }
 }

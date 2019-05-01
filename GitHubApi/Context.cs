@@ -21,8 +21,8 @@ namespace GitHubApi
         {
             if (!optionsBuilder.IsConfigured)
             {
-                //optionsBuilder.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=RepoDb;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
-                optionsBuilder.UseSqlServer(@"Server=tcp:githubserver1.database.windows.net,1433;Initial Catalog=MSSQLLocalDB;Persist Security Info=False;User ID=adminu;Password=DBuser123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+                optionsBuilder.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=RepoDb;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+                //optionsBuilder.UseSqlServer(@"Server=tcp:githubserver1.database.windows.net,1433;Initial Catalog=MSSQLLocalDB;Persist Security Info=False;User ID=adminu;Password=DBuser123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
             }
         }
 

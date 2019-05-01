@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Runtime.Serialization.Json;
-using System.Threading.Tasks;
-using GitHubApi.Models;
+﻿using GitHubApi.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GitHubApi.Controllers
@@ -13,52 +6,42 @@ namespace GitHubApi.Controllers
     [Route("api/[controller]")]
     public class ValuesController : Controller
     {
-        private static readonly HttpClient client = new HttpClient();
+
+        // private RepoRepository _repoRepository = new RepoRepository();
         public bool HasWord;
+        private Context _context = null;
+
+        // Making sure we are creating just one instance of the context class
+        public ValuesController()
+        {
+            _context = new Context();
+        }
 
 
         // GET api/values
         [HttpGet]
         public ActionResult Index(string query = "Angular")
         {
-            var repositories = ProcessRepositories(query).Result;
+            var repositories = ApiRepoRepository.GetRepositories(query).Result;
 
 
-            using (var context = new Context())
+            var Keywords = DbKeywordRepository.GetKeyword(_context);
+
+            foreach (var el in Keywords)
             {
-                var Keywords = context.Keywords.ToList();
-
-                foreach (var el in Keywords)
+                if (el.Name == query)
                 {
-                    if (el.Name == query)
-                    {
-                        HasWord = true;
-                    }
-
+                    HasWord = true;
                 }
 
-                if (!HasWord)
-                {
-                    context.Keywords.Add(new Keyword { Name = query });
-                    context.SaveChanges();
-                    foreach (Repo element in repositories.Item)
-                    {
-                        context.Repos.Add(new Repo()
-                        {
-                            Name = element.Name,
-                            Description = element.Description,
-                            Forks = element.Forks,
-                            Stars = element.Stars,
-                            Id = element.Id,
-                            Url = element.Url
-                        });
-                        context.SaveChanges();
-                    }
-
-                }
-          
             }
 
+            if (!HasWord)
+            {
+                DbKeywordRepository.AddKeyword(_context, query);
+                DbRepoRepository.AddRepository(_context, repositories);
+            }
+          
 
             return View(repositories.Item);
         }
@@ -67,7 +50,7 @@ namespace GitHubApi.Controllers
         [HttpGet("{id}")]
         public ActionResult Details(int id)
         {
-            var repositories = ProcessRepositoriesById(id).Result;
+            var repositories = ApiRepoRepository.GetRepositoriesById(id).Result;
             return View(repositories);
             //return "value";
         }
@@ -90,55 +73,32 @@ namespace GitHubApi.Controllers
         {
         }
 
-        private static async Task<RepoItems> ProcessRepositories(string query)
-        {
-            var serializer = new DataContractJsonSerializer(typeof(RepoItems));
-
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
-            client.DefaultRequestHeaders.Add("User-Agent", "Awesome GitGub Api");
-
-            try
-            {
-                var url = String.Format("https://api.github.com/search/repositories?q={0}&sort=stars&order=desc", query);
-                var streamTask = client.GetStreamAsync(url);
-                var repositories = serializer.ReadObject(await streamTask) as RepoItems;
-                return repositories;
-            }
-            catch(HttpRequestException e)
-            {
-                Console.WriteLine("\nException Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
-                return null;
-            }
-
-        }
-
-        private static async Task<dynamic> ProcessRepositoriesById(int id)
-        {
-            var serializer = new DataContractJsonSerializer(typeof(Repo));
-
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
-            client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
-
-            var url = String.Format("https://api.github.com/repositories/{0}", id);
-            var streamTask = client.GetStreamAsync(url);
-            var repositories = serializer.ReadObject(await streamTask) as Repo;
-
-            return repositories;
-
-        }
-
         [HttpGet("search")]
         public ActionResult Search(string query)
         {
-            using (var context = new Context())
+
+            var Repos = DbRepoRepository.GetRepositories(_context);
+            return View(Repos);
+            
+
+        }
+
+        private bool _disposed = false;
+
+        protected override void Dispose(bool disposing)
+        {
+
+            if (_disposed)
+                return;
+
+            if (disposing)
             {
-                var Repos = context.Repos.ToList();
-                return View(Repos);
+                _context.Dispose();
             }
 
+            _disposed = true;
+
+            base.Dispose(disposing);
         }
 
     }
