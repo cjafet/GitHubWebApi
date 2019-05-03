@@ -29,7 +29,6 @@ namespace GitHubApi.Controllers
         {
             var repositories = ApiRepoRepository.GetRepositories(query).Result;
 
-
             var Keywords = DbKeywordRepository.GetKeyword(_context);
 
             foreach (var el in Keywords)
